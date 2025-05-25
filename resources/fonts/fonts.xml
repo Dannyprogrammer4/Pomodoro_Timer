@@ -1,0 +1,5 @@
+<fonts>
+    <font id="customFont5" filename="customFont5.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+    <font id="customFont3" filename="customFont3.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+    <font id="customFont4" filename="customFont4.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+</fonts>
