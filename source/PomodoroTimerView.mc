@@ -185,7 +185,7 @@ class PomodoroTimerView extends WatchUi.View {
             breakDuration = 10 * 60;
         } else if (changeState == false) {
             workDuration = 25 * 60;
-            breakDuration = 10;
+            breakDuration = 5 * 60;
         }
         
     }
