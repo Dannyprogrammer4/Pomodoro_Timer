@@ -1,0 +1,8 @@
+<fonts>
+    <font id="customFont5" filename="customFont5.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+    <font id="customFont3" filename="customFont3.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+    <font id="customFont4" filename="customFont4.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+    <font id="customFont5255S" filename="customFont6.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+    <font id="customFont3255S" filename="customFont3.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+    <font id="customFont4255S" filename="customFont5.fnt" filter=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!:"/>
+</fonts>
