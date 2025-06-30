@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.System;
 import Toybox.Lang;
 import Toybox.Attention;
+import Toybox.Application;
 
 class PomodoroTimerDelegate extends WatchUi.InputDelegate {
 
@@ -27,7 +28,7 @@ class PomodoroTimerDelegate extends WatchUi.InputDelegate {
 
         if (keyEvent.getKey() == WatchUi.KEY_ENTER) {
             if (_view.Settings) {
-                if (_view.ChangeSetting) {
+                if (_view.ChangeSetting == 1) {
                     // If in change setting mode, toggle the setting
                     if (_view.HRS.equals("12 Hour")) {
                         _view.HRS = "24 Hour";
@@ -35,7 +36,7 @@ class PomodoroTimerDelegate extends WatchUi.InputDelegate {
                         _view.HRS = "12 Hour";
                     }
                     WatchUi.requestUpdate(); // Update the view immediately
-                } else if (!_view.ChangeSetting) {
+                } else if (_view.ChangeSetting == 3) {
                     // If not in change setting mode, show settings menu
                     WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
                 }
@@ -69,8 +70,15 @@ class PomodoroTimerDelegate extends WatchUi.InputDelegate {
 
         if (keyEvent.getKey() == WatchUi.KEY_DOWN) {
             if (_view.Settings) {
-                _view.ChangeSetting = !_view.ChangeSetting; // Toggle change setting
-                WatchUi.requestUpdate(); // Update the view immediately
+                if (_view.ChangeSetting >= 1) {
+                    _view.ChangeSetting++; // Toggle change setting
+                    WatchUi.requestUpdate(); // Update the view immediately
+                    if (_view.ChangeSetting > 3) {
+                        _view.ChangeSetting = 1;
+                        WatchUi.requestUpdate(); // Update the view immediately
+                    }
+                }
+                System.println(_view.ChangeSetting);
             } else {
                 if (_view._inProgress && !_view.Pause) {
                     _view._skipTimer = true;
@@ -87,6 +95,7 @@ class PomodoroTimerDelegate extends WatchUi.InputDelegate {
         if (keyEvent.getKey() == WatchUi.KEY_ESC) {
             System.println("👈 ESC key opens settings menu");
             _view.showSettingsMenu(); // Call the function you just made
+            Attention.vibrate(vibeData);
             return true; // Prevent app from exiting
         }
 
@@ -99,8 +108,14 @@ class PomodoroTimerDelegate extends WatchUi.InputDelegate {
         if (keyEvent.getKey() == WatchUi.KEY_UP) {
             System.println("❌ UP button pressed");
             if (_view.Settings) {
-                _view.ChangeSetting = !_view.ChangeSetting; // Toggle change setting
-                WatchUi.requestUpdate(); // Update the view immediately
+                 if (_view.ChangeSetting <= 3) {
+                    _view.ChangeSetting--; // Toggle change setting
+                    WatchUi.requestUpdate(); // Update the view immediately
+                    if (_view.ChangeSetting < 1) {
+                        _view.ChangeSetting = 3;
+                        WatchUi.requestUpdate(); // Update the view immediately
+                    }
+                 }
             } else {
                 if (!_view._inProgress) {
                     if (_view.changeState) {

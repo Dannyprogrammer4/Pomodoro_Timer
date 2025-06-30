@@ -5,7 +5,7 @@ import Toybox.Time.Gregorian;
 import Toybox.System;
 import Toybox.Graphics;
 import Toybox.Attention;
-import Toybox.System;
+import Toybox.Application;
 
 class PomodoroTimerView extends WatchUi.View {
 
@@ -37,7 +37,9 @@ class PomodoroTimerView extends WatchUi.View {
     var Pause = false;
     var Settings = false;
     var HRS = "12 Hour";
-    var ChangeSetting = false;
+    var ChangeSetting = 1;
+    var PomodoroCount = 0;
+    var LastDate;
     
 
     function initialize() {
@@ -47,6 +49,7 @@ class PomodoroTimerView extends WatchUi.View {
     }
 
     function onLayout(dc as Dc) as Void {
+
         setLayout(Rez.Layouts.MainLayout(dc));
         customFont5 = WatchUi.loadResource(Rez.Fonts.customFont5); 
         customFont3 = WatchUi.loadResource(Rez.Fonts.customFont3); 
@@ -78,8 +81,32 @@ class PomodoroTimerView extends WatchUi.View {
                 System.println("❌ Failed to load custom font!");
             }
         }
-        
+        PomodoroCount = Storage.getValue("pomodoroCount");
+        if (PomodoroCount == null) {
+            PomodoroCount = 0;
+        }
+        Storage.setValue("pomodoroCount", PomodoroCount);
+        LastDate = Storage.getValue("lastDate");
+        if (LastDate == null) {
+            LastDate = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT)[:day];
+        }
+        Storage.setValue("lastDate", LastDate);
+
     }
+
+    function checkDateReset() {
+        var now = Time.now();
+        var today = Time.Gregorian.info(now, Time.FORMAT_SHORT)[:day];
+
+        if (LastDate == null) {
+            LastDate = today;
+        } else if (LastDate != today) {
+            PomodoroCount = 0;
+            LastDate = today;
+        }
+
+    }
+
 
     function onShow() as Void {
         ChangeState();
@@ -158,7 +185,7 @@ class PomodoroTimerView extends WatchUi.View {
             breakDuration = 10 * 60;
         } else if (changeState == false) {
             workDuration = 25 * 60;
-            breakDuration = 5 * 60;
+            breakDuration = 10;
         }
         
     }
@@ -179,6 +206,21 @@ class PomodoroTimerView extends WatchUi.View {
         if (_currentDuration <= 0) {
             _skipTimer = true;
             Attention.vibrate(vibedata);
+            if (_currentDuration <= 0) {
+                _skipTimer = true;
+                Attention.vibrate(vibedata);
+                
+                checkDateReset(); // make sure this runs regularly
+
+                if (!WorkTime) {
+                    PomodoroCount += 1;
+                    Storage.setValue("pomodoroCount", PomodoroCount);
+                     Storage.setValue("lastDate", LastDate);
+                    WatchUi.requestUpdate();
+                }
+            }
+            
+
         }
 
         if (_skipTimer == true) {
@@ -272,18 +314,24 @@ class PomodoroTimerView extends WatchUi.View {
             dc.clear();
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             dc.drawText(125, 60, customFont4, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
-            if (ChangeSetting) { 
+            if (ChangeSetting == 1) { 
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
             } else {
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             }
-            dc.drawText(125, 110, customFont5, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
-            if (!ChangeSetting) { 
+            dc.drawText(125, 110, customFont5255S, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
+             if (ChangeSetting == 2) { 
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
             } else {
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             }
-            dc.drawText(125, 150, customFont5, "Exit App", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(125, 150, customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
+            if (ChangeSetting == 3) { 
+                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
+            } else {
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            }
+            dc.drawText(125, 190, customFont5255S, "Exit App", Graphics.TEXT_JUSTIFY_CENTER);
         } else {
             View.onUpdate(dc); // ✨ Preserve layout and UI elements
             if (_currentDuration == null) {
