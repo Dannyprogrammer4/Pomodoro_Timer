@@ -48,8 +48,7 @@ class PomodoroTimerView extends WatchUi.View {
         changeState = false;
     }
 
-    function onLayout(dc as Dc) as Void {
-
+    function onLayout(dc as Dc) as Void {  
         setLayout(Rez.Layouts.MainLayout(dc));
         customFont5 = WatchUi.loadResource(Rez.Fonts.customFont5); 
         customFont3 = WatchUi.loadResource(Rez.Fonts.customFont3); 
@@ -310,28 +309,34 @@ class PomodoroTimerView extends WatchUi.View {
 
     function onUpdate(dc as Dc) as Void {
         if (Settings) {
+            var width = dc.getWidth();
+            var height = dc.getHeight();
+            var centerX = width / 2;
+            var centerY = height / 2;
             ResetTimer();
             dc.clear();
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+            dc.fillCircle(centerX, centerY, centerX);
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-            dc.drawText(125, 60, customFont4, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, centerY - (width/4), customFont4, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
             if (ChangeSetting == 1) { 
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
             } else {
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             }
-            dc.drawText(125, 110, customFont5255S, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, centerY, customFont5255S, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
              if (ChangeSetting == 2) { 
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
             } else {
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             }
-            dc.drawText(125, 150, customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, centerY + (width/8), customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
             if (ChangeSetting == 3) { 
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
             } else {
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             }
-            dc.drawText(125, 190, customFont5255S, "Exit App", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, centerY + (width/4), customFont5255S, "Exit App", Graphics.TEXT_JUSTIFY_CENTER);
         } else {
             View.onUpdate(dc); // ✨ Preserve layout and UI elements
             if (_currentDuration == null) {
