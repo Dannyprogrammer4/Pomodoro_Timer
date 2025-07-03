@@ -302,83 +302,86 @@ class PomodoroTimerView extends WatchUi.View {
             Settings = false;
         } else {
             Settings = true;
+            ResetTimer();
         }
         WatchUi.pushView(new WatchUi.Menu(), new PomodoroTimerMenuInputDelegate(), WatchUi.SLIDE_IMMEDIATE);
     }
-
+    var _settingsInitialized = false;
+    var _lastDrawnHRS = null;
+    var _lastPomodoroCount = null;
+    var _lastChangeSetting = -1;
 
     function onUpdate(dc as Dc) as Void {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        var centerX = width / 2;
+        var centerY = height / 2;
+
         if (Settings) {
-            var width = dc.getWidth();
-            var height = dc.getHeight();
-            var centerX = width / 2;
-            var centerY = height / 2;
-            ResetTimer();
-            dc.clear();
+            if (!_settingsInitialized) {
+                ResetTimer();
+                _settingsInitialized = true;
+            }
+
+            // Clear the background
             dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-            dc.fillCircle(centerX, centerY, centerX);
+            dc.fillRectangle(0, 0, width, height);
+
+            // Draw title
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-            dc.drawText(centerX, centerY - (width/4), customFont4, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
-            if (ChangeSetting == 1) { 
-                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
-            } else {
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-            }
-            dc.drawText(centerX, centerY, customFont5255S, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
-             if (ChangeSetting == 2) { 
-                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
-            } else {
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-            }
-            dc.drawText(centerX, centerY + (width/8), customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
-            if (ChangeSetting == 3) { 
-                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
-            } else {
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-            }
-            dc.drawText(centerX, centerY + (width/4), customFont5255S, "Exit App", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, centerY - (width / 3).toNumber(), customFont4, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
+
+            // Draw Format setting
+            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.drawText(centerX, centerY - (width / 10).toNumber(), customFont5255S, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
+
+            // Draw Pomodoro count
+            dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.drawText(centerX, centerY + (width / 15).toNumber(), customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
+
+            // Draw Exit option
+            dc.setColor(ChangeSetting == 3 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.drawText(centerX, centerY + (width / 4).toNumber(), customFont5255S, "Exit App", Graphics.TEXT_JUSTIFY_CENTER);
+
+            // Cache current state
+            _lastDrawnHRS = HRS;
+            _lastPomodoroCount = PomodoroCount;
+            _lastChangeSetting = ChangeSetting;
+
         } else {
-            View.onUpdate(dc); // ✨ Preserve layout and UI elements
+            _settingsInitialized = false;
+            View.onUpdate(dc);
+
             if (_currentDuration == null) {
                 return;
+            } 
+
+            var radius = min(centerX, centerY) - 10;
+            var totalDuration = WorkTime ? workDuration : breakDuration;
+            if (totalDuration <= 0) {
+                 return;
+
             }
+            if (!_inProgress && !Pause) {
+                dc.clear();
+            } else {
+                var elapsed = totalDuration - _currentDuration;
+                var progressPercent = max(0.0, min(elapsed.toFloat() / totalDuration.toFloat(), 1.0));
+                var progressAngle = progressPercent * 360.0;
 
-                var width = dc.getWidth();
-                var height = dc.getHeight();
-                var centerX = width / 2;
-                var centerY = height / 2;
-                var radius = min(centerX, centerY) - 10;
-                var totalDuration = WorkTime ? workDuration : breakDuration;
-
-                if (totalDuration <= 0) {
-                    return;
-                } 
-                if (_inProgress == false && Pause == false) {
-                    dc.clear();
-                } else {
-                    var elapsed = totalDuration - _currentDuration;
-                    var progressPercent = max(0.0, min(elapsed.toFloat() / totalDuration.toFloat(), 1.0));
-                    var progressAngle = progressPercent * 360.0;
-                    if (partNumber.equals("006-B3993-00") || partNumber.equals("006-B3991-00")) {
-                        dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
-                        try {
-                            dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
-                            dc.drawArc(centerX, centerY, radius - 1, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
-                        } catch(e) {
-                            System.println("🚨 drawArc failed: " + e.toString());
-                        }
-                    } else {
-                        dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
-                        try {
-                            dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
-                            dc.drawArc(centerX, centerY, radius - 1, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
-                            dc.drawArc(centerX, centerY, radius - 2, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
-                        } catch(e) {
-                            System.println("🚨 drawArc failed: " + e.toString());
-                        }
+                dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+                try {
+                    dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
+                    dc.drawArc(centerX, centerY, radius - 1, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
+                    if (!(partNumber.equals("006-B3993-00") || partNumber.equals("006-B3991-00"))) {
+                        dc.drawArc(centerX, centerY, radius - 2, Graphics.ARC_CLOCKWISE, 90, progressAngle + 90);
                     }
-                    
+                } catch(e) {
+                    System.println("🚨 drawArc failed: " + e.toString());
                 }
+            }
         }
     }
+
+
 }
