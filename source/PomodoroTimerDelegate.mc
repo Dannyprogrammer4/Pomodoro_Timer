@@ -38,6 +38,8 @@ class PomodoroTimerDelegate extends WatchUi.InputDelegate {
                     WatchUi.requestUpdate(); // Update the view immediately
                 } else if (_view.ChangeSetting == 3) {
                     // If not in change setting mode, show settings menu
+                    _view.StopTimers();
+                    WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
                     System.exit();
                 }
             } else {

@@ -109,20 +109,43 @@ class PomodoroTimerView extends WatchUi.View {
 
     function onShow() as Void {
         ChangeState();
-        delayedStart();
+
+        // ✅ Only start if not already started
+        if (m_Timer == null) {
+            delayedStart();
+        }
+
         setTimerValue(workDuration);
         WatchUi.requestUpdate();
+
+        // ✅ Resume countdown timer if needed
+        if (_inProgress && Pause && _timers == null) {
+            _timers = new Timer.Timer();
+            _timers.start(method(:countDownTick), 1000, true);
+        }
     }
 
+    function onHide() {
+        if (_inProgress && !Pause) {
+            Pause = true;
+            _Title.setText("Paused");
+        }
+    }
     function delayedStart() as Void {
         CurrentTime();
         updateTimer();
     }
 
     function updateTimer() as Void {
+        if (m_Timer != null) {
+            m_Timer.stop();
+            m_Timer = null; // ✅ Prevent memory leak
+        }
+
         m_Timer = new Timer.Timer();
         m_Timer.start(method(:Update), 1000, true);
     }
+
 
     function SigmaTimer() as Void {
         _currentDuration = workDuration;
@@ -288,7 +311,7 @@ class PomodoroTimerView extends WatchUi.View {
         
     }
 
-    function onHide() as Void {
+    function StopTimers() as Void {
         if (m_Timer != null) {
             m_Timer.stop();
         } 
@@ -314,18 +337,20 @@ class PomodoroTimerView extends WatchUi.View {
     function onUpdate(dc as Dc) as Void {
         var width = dc.getWidth();
         var height = dc.getHeight();
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.fillRectangle(0, 0, width, height);
         var centerX = width / 2;
         var centerY = height / 2;
-
+        
         if (Settings) {
+            
             if (!_settingsInitialized) {
                 ResetTimer();
                 _settingsInitialized = true;
             }
 
             // Clear the background
-            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-            dc.fillRectangle(0, 0, width, height);
+            
 
             // Draw title
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
