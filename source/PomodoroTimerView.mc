@@ -6,6 +6,7 @@ import Toybox.System;
 import Toybox.Graphics;
 import Toybox.Attention;
 import Toybox.Application;
+import Toybox.Lang;
 
 class PomodoroTimerView extends WatchUi.View {
 
@@ -319,16 +320,17 @@ class PomodoroTimerView extends WatchUi.View {
              _timers.stop();
         }
     }
+    
+
     function showSettingsMenu() {
 
         if (Settings) {
             Settings = false;
         } else {
             Settings = true;
-            ResetTimer();
+            
         }
-        WatchUi.pushView(new WatchUi.Menu(), new PomodoroTimerMenuInputDelegate(), WatchUi.SLIDE_IMMEDIATE);
-    }
+    }   
     var _settingsInitialized = false;
     var _lastDrawnHRS = null;
     var _lastPomodoroCount = null;
@@ -337,13 +339,13 @@ class PomodoroTimerView extends WatchUi.View {
     function onUpdate(dc as Dc) as Void {
         var width = dc.getWidth();
         var height = dc.getHeight();
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-        dc.fillRectangle(0, 0, width, height);
+        
         var centerX = width / 2;
         var centerY = height / 2;
         
         if (Settings) {
-            
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+            dc.fillRectangle(0, 0, width, height);
             if (!_settingsInitialized) {
                 ResetTimer();
                 _settingsInitialized = true;
@@ -364,9 +366,6 @@ class PomodoroTimerView extends WatchUi.View {
             dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             dc.drawText(centerX, centerY + (width / 15).toNumber(), customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
 
-            // Draw Exit option
-            dc.setColor(ChangeSetting == 3 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-            dc.drawText(centerX, centerY + (width / 4).toNumber(), customFont5255S, "Exit App", Graphics.TEXT_JUSTIFY_CENTER);
 
             // Cache current state
             _lastDrawnHRS = HRS;
