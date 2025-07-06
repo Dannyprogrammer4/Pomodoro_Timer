@@ -19,9 +19,17 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
         if (_view.Settings) {
             System.println("👈 Back key pressed in settings, exiting settings");
             _view.Settings = false;
-            _view.ChangeSetting = 1; // Reset change setting
-            _view._Title.setText("Pomodoro Timer"); // Restore title
+            if (_view._inProgress) {
+                _view._Title.setText("Paused"); // Restore title
+                _view.Pause = true;
+                _view.setTimerValue(_view.LastPausedTime);
+            } else {
+                _view._Title.setText("Pomodoro Timer"); // Restore title
+                _view.ResetTimer(); // Reset timer if not in progress
+            }
+            
             WatchUi.requestUpdate(); // Update the view immediately
+            Attention.vibrate(vibeData);
             return true;
         }
         return false;
@@ -43,7 +51,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
 
         if (keyEvent.getKey() == WatchUi.KEY_ENTER) {
             if (_view.Settings) {
-                if (_view.ChangeSetting == 1) {
+                if (_view.ChangeSetting == 2) {
                     if (_view.HRS.equals("12 Hour")) {
                         _view.HRS = "24 Hour";
                     } else {
@@ -63,8 +71,11 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
                     _view._Title.setText("Time to work!");
                     _view.SigmaTimer();
                 } else if (_view._inProgress && !_view.Pause) {
+                    _view.LastPausedTime = _view._currentDuration;
                     _view.Pause = true;
                     _view._Title.setText("Paused");
+                    _view.setTimerValue(_view.LastPausedTime);
+                    WatchUi.requestUpdate();
                 } else if (_view._inProgress && _view.Pause) {
                     _view.Pause = false;
                     _view._Title.setText(_view.WorkTime ? "Time to work!" : "Break Time!");
@@ -74,19 +85,19 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
         }
 
         if (keyEvent.getKey() == WatchUi.KEY_DOWN) {
-            if (!_view._inProgress && !_view.Settings) {
-                _view.ResetTimer();
+            if (!_view._inProgress && !_view.Settings || _view.Pause && !_view.Settings) {
                 _view.showSettingsMenu();
+                WatchUi.requestUpdate();
                 Attention.vibrate(vibeData);
             }
             if (_view.Settings) {
-                if (_view.ChangeSetting >= 1) {
+                if (_view.ChangeSetting >= 2) {
+                    _view.ChangeSetting = 1;
+                } else if (_view.ChangeSetting >= 1) {
                     _view.ChangeSetting++;
-                    if (_view.ChangeSetting > 2) {
-                        _view.ChangeSetting = 1;
-                    }
-                    WatchUi.requestUpdate();
                 }
+                WatchUi.requestUpdate();
+               
                 System.println(_view.ChangeSetting);
             } else {
                 if (_view._inProgress && !_view.Pause) {

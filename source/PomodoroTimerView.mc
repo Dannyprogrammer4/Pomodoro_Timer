@@ -41,6 +41,8 @@ class PomodoroTimerView extends WatchUi.View {
     var ChangeSetting = 1;
     var PomodoroCount = 0;
     var LastDate;
+    var LastPausedTime;
+    var LastAngle;
     
 
     function initialize() {
@@ -126,12 +128,7 @@ class PomodoroTimerView extends WatchUi.View {
         }
     }
 
-    function onHide() {
-        if (_inProgress && !Pause) {
-            Pause = true;
-            _Title.setText("Paused");
-        }
-    }
+    
     function delayedStart() as Void {
         CurrentTime();
         updateTimer();
@@ -157,12 +154,6 @@ class PomodoroTimerView extends WatchUi.View {
 
     function ResetTimer() as Void {
         stopTimer();
-
-        if (m_Timer != null) {
-            m_Timer.stop();
-            m_Timer = null;
-        }
-
         _skipTimer = false;
         _sigma = true;
         WorkTime = true;
@@ -184,6 +175,10 @@ class PomodoroTimerView extends WatchUi.View {
             _timers.stop();
             _timers = null;
         }
+        if (m_Timer != null) {
+            m_Timer.stop();
+            m_Timer = null;
+        }
         _inProgress = false;
     }
 
@@ -191,6 +186,7 @@ class PomodoroTimerView extends WatchUi.View {
     function Update() as Void {
         CurrentTime();
         ChangeState();
+        PausedData();
     }
 
     function min(a, b) {
@@ -214,10 +210,6 @@ class PomodoroTimerView extends WatchUi.View {
     }
 
     function countDownTick() as Void {
-        if (Pause) {
-            _Title.setText("Paused");
-            return;
-        }
         if (Attention has :vibrate) {
             vibedata =
             [
@@ -238,7 +230,7 @@ class PomodoroTimerView extends WatchUi.View {
                 if (!WorkTime) {
                     PomodoroCount += 1;
                     Storage.setValue("pomodoroCount", PomodoroCount);
-                     Storage.setValue("lastDate", LastDate);
+                    Storage.setValue("lastDate", LastDate);
                     WatchUi.requestUpdate();
                 }
             }
@@ -262,9 +254,12 @@ class PomodoroTimerView extends WatchUi.View {
         }
 
         
-        setTimerValue(_currentDuration);
+        
         if (Pause == false) {
-            _currentDuration--;
+            setTimerValue(_currentDuration);
+            _currentDuration--; 
+        } else {
+            setTimerValue(LastPausedTime);
         }
         
     }
@@ -312,13 +307,26 @@ class PomodoroTimerView extends WatchUi.View {
         
     }
 
-    function StopTimers() as Void {
+    function onHide() as Void {
         if (m_Timer != null) {
             m_Timer.stop();
         } 
         if (_timers != null) {
              _timers.stop();
         }
+    }
+
+    function PausedData() as Void {
+        if (_inProgress) {
+            var totalDuration = WorkTime ? workDuration : breakDuration;
+            var elapsed = totalDuration - _currentDuration;
+            var progressPercent = max(0.0, min(elapsed.toFloat() / totalDuration.toFloat(), 1.0));
+            var progressAngle = progressPercent * 360.0;
+
+            LastPausedTime = _currentDuration;
+            LastAngle = progressAngle;
+        }
+        
     }
     
 
@@ -347,7 +355,7 @@ class PomodoroTimerView extends WatchUi.View {
             dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
             dc.fillRectangle(0, 0, width, height);
             if (!_settingsInitialized) {
-                ResetTimer();
+                Pause = true;
                 _settingsInitialized = true;
             }
 
@@ -359,11 +367,11 @@ class PomodoroTimerView extends WatchUi.View {
             dc.drawText(centerX, centerY - (width / 3).toNumber(), customFont4, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
 
             // Draw Format setting
-            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             dc.drawText(centerX, centerY - (width / 10).toNumber(), customFont5255S, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
 
             // Draw Pomodoro count
-            dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             dc.drawText(centerX, centerY + (width / 15).toNumber(), customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
 
 
