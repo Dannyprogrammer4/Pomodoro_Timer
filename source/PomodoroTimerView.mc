@@ -83,6 +83,7 @@ class PomodoroTimerView extends WatchUi.View {
                 System.println("❌ Failed to load custom font!");
             }
         }
+        checkDateReset();
         PomodoroCount = Storage.getValue("pomodoroCount");
         if (PomodoroCount == null) {
             PomodoroCount = 0;
@@ -372,7 +373,9 @@ class PomodoroTimerView extends WatchUi.View {
 
             // Draw Pomodoro count
             dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-            dc.drawText(centerX, centerY + (width / 15).toNumber(), customFont5255S, "Total Pomodoros: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, centerY + (width / 15).toNumber(), customFont5255S, "Total Pomodoros", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.drawText(centerX, centerY + (width / 6).toNumber(), customFont5255S, "Today: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
 
 
             // Cache current state
