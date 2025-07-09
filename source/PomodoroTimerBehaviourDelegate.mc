@@ -89,6 +89,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
                 _view.showSettingsMenu();
                 WatchUi.requestUpdate();
                 Attention.vibrate(vibeData);
+                _view.ChangeSetting = 1;
             }
             if (_view.Settings) {
                 if (_view.ChangeSetting >= 2) {

@@ -83,7 +83,6 @@ class PomodoroTimerView extends WatchUi.View {
                 System.println("❌ Failed to load custom font!");
             }
         }
-        checkDateReset();
         PomodoroCount = Storage.getValue("pomodoroCount");
         if (PomodoroCount == null) {
             PomodoroCount = 0;
@@ -346,6 +345,9 @@ class PomodoroTimerView extends WatchUi.View {
     var _lastChangeSetting = -1;
 
     function onUpdate(dc as Dc) as Void {
+        checkDateReset();
+        Storage.setValue("pomodoroCount", PomodoroCount);
+        Storage.setValue("lastDate", LastDate);
         var width = dc.getWidth();
         var height = dc.getHeight();
         
