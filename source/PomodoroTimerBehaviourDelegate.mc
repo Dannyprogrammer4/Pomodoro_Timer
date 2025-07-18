@@ -35,6 +35,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
         return false;
     }
 
+
     function onKeyPressed(keyEvent as WatchUi.KeyEvent) as Lang.Boolean {
 
         if (Attention has :vibrate) {

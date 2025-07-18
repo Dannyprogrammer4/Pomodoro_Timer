@@ -128,6 +128,12 @@ class PomodoroTimerView extends WatchUi.View {
         }
     }
 
+    function onHide() as Void {
+        _Title.setText("Paused"); // Restore title
+        Pause = true;
+        setTimerValue(LastPausedTime);
+    }
+
     
     function delayedStart() as Void {
         CurrentTime();
@@ -258,8 +264,6 @@ class PomodoroTimerView extends WatchUi.View {
         if (Pause == false) {
             setTimerValue(_currentDuration);
             _currentDuration--; 
-        } else {
-            setTimerValue(LastPausedTime);
         }
         
     }
@@ -307,14 +311,7 @@ class PomodoroTimerView extends WatchUi.View {
         
     }
 
-    function onHide() as Void {
-        if (m_Timer != null) {
-            m_Timer.stop();
-        } 
-        if (_timers != null) {
-             _timers.stop();
-        }
-    }
+
 
     function PausedData() as Void {
         if (_inProgress) {
