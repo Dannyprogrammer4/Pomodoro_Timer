@@ -37,20 +37,21 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
 
 
     function onKeyPressed(keyEvent as WatchUi.KeyEvent) as Lang.Boolean {
-
         if (Attention has :vibrate) {
             vibeData =
             [
                 new Attention.VibeProfile(50, 500), // On for 0.5 seconds
-                new Attention.VibeProfile(0, 500),  // Off for 0.5 seconds
             ];
         }
+       
 
         if (keyEvent.getKey() == WatchUi.KEY_ESC) {
+            Attention.vibrate(vibeData);
             return false; // Let view handle it or fallback
         }
 
         if (keyEvent.getKey() == WatchUi.KEY_ENTER) {
+            Attention.vibrate(vibeData);
             if (_view.Settings) {
                 if (_view.ChangeSetting == 2) {
                     if (_view.HRS.equals("12 Hour")) {
@@ -63,7 +64,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
             } else {
                 System.println("✅ SELECT button pressed");
 
-                Attention.vibrate(vibeData);
+                
 
                 if (!_view._inProgress) {
                     _view._inProgress = true;
@@ -86,10 +87,11 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
         }
 
         if (keyEvent.getKey() == WatchUi.KEY_DOWN) {
+            Attention.vibrate(vibeData);
             if (!_view._inProgress && !_view.Settings || _view.Pause && !_view.Settings) {
                 _view.showSettingsMenu();
                 WatchUi.requestUpdate();
-                Attention.vibrate(vibeData);
+                
                 _view.ChangeSetting = 1;
             }
             if (_view.Settings) {
@@ -104,7 +106,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
             } else {
                 if (_view._inProgress && !_view.Pause) {
                     _view._skipTimer = true;
-                    Attention.vibrate(vibeData);
+                    
                 } else {
                     _view._skipTimer = false;
                 }
@@ -113,6 +115,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
         }
 
         if (keyEvent.getKey() == WatchUi.KEY_UP) {
+            Attention.vibrate(vibeData);
             System.println("❌ UP button pressed");
             if (_view.Settings) {
                 if (_view.ChangeSetting <= 2) {
@@ -128,15 +131,17 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
                     _view.ChangeState();
                     _view._currentDuration = _view.workDuration;
                     _view.setTimerValue(_view._currentDuration);
-                    Attention.vibrate(vibeData);
+                    
                 } else if (_view._inProgress) {
                     _view.ResetTimer();
-                    Attention.vibrate(vibeData);
+                    
                 }
             }
             return true;
         }
+        
 
         return false;
     }
+    
 }
