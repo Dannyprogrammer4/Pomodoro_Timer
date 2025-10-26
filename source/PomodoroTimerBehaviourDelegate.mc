@@ -16,9 +16,10 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
     function onBack() as Lang.Boolean {
         System.println("👈 Back key pressed in behavior delegate");
 
-        if (_view.Settings) {
+        if (_view.Settings || _view.ExitApp && !_view.ExittingApp) {
             System.println("👈 Back key pressed in settings, exiting settings");
             _view.Settings = false;
+            _view.ExitApp = false;
             if (_view._inProgress) {
                 _view._Title.setText("Paused"); // Restore title
                 _view.Pause = true;
@@ -30,6 +31,11 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
             
             WatchUi.requestUpdate(); // Update the view immediately
             Attention.vibrate(vibeData);
+            return true;
+            
+        } else if (!_view.Settings && !_view.ExitApp && !_view.ExittingApp) {
+            System.println("👈 Back key pressed, showing exit confirmation");
+            _view.ExitApp = true;
             return true;
         }
         return false;
@@ -51,6 +57,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
         }
 
         if (keyEvent.getKey() == WatchUi.KEY_ENTER) {
+            
             Attention.vibrate(vibeData);
             if (_view.Settings) {
                 if (_view.ChangeSetting == 2) {
@@ -61,6 +68,24 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
                     }
                     WatchUi.requestUpdate();
                 }
+            } else if (_view.ExitApp) {
+                if (_view.ChangeSetting == 1) {
+                    _view.ExitApp = false;
+                    if (_view._inProgress) {
+                        _view._Title.setText("Paused"); // Restore title
+                        _view.Pause = true;
+                        _view.setTimerValue(_view.LastPausedTime);
+                    } else {
+                        _view._Title.setText("Pomodoro Timer"); // Restore title
+                        _view.ResetTimer(); // Reset timer if not in progress
+                    }
+                    WatchUi.requestUpdate();
+                } else if (_view.ChangeSetting == 2) {
+                    _view.ExittingApp = true;
+                    WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+                    WatchUi.requestUpdate();
+                }
+            
             } else {
                 System.println("✅ SELECT button pressed");
 
@@ -87,14 +112,15 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
         }
 
         if (keyEvent.getKey() == WatchUi.KEY_DOWN) {
-            Attention.vibrate(vibeData);
-            if (!_view._inProgress && !_view.Settings || _view.Pause && !_view.Settings) {
+            
+            if (!_view._inProgress && !_view.Settings && !_view.ExitApp || _view.Pause && !_view.Settings && !_view.ExitApp) {
                 _view.showSettingsMenu();
                 WatchUi.requestUpdate();
                 
                 _view.ChangeSetting = 1;
+                Attention.vibrate(vibeData);
             }
-            if (_view.Settings) {
+            if (_view.Settings || _view.ExitApp) {
                 if (_view.ChangeSetting >= 2) {
                     _view.ChangeSetting = 1;
                 } else if (_view.ChangeSetting >= 1) {
@@ -110,14 +136,15 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
                 } else {
                     _view._skipTimer = false;
                 }
+                Attention.vibrate(vibeData);
             }
             return true;
         }
 
         if (keyEvent.getKey() == WatchUi.KEY_UP) {
-            Attention.vibrate(vibeData);
+            
             System.println("❌ UP button pressed");
-            if (_view.Settings) {
+            if (_view.Settings || _view.ExitApp) {
                 if (_view.ChangeSetting <= 2) {
                     _view.ChangeSetting--;
                     if (_view.ChangeSetting < 1) {
@@ -136,6 +163,7 @@ class PomodoroTimerBehaviourDelegate extends WatchUi.BehaviorDelegate {
                     _view.ResetTimer();
                     
                 }
+                Attention.vibrate(vibeData);
             }
             return true;
         }

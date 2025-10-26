@@ -38,11 +38,13 @@ class PomodoroTimerView extends WatchUi.View {
     var Pause = false;
     var Settings = false;
     var HRS = "12 Hour";
-    var ChangeSetting = 1;
+    var ChangeSetting = 2;
     var PomodoroCount = 0;
     var LastDate;
     var LastPausedTime;
     var LastAngle;
+    var ExitApp = false;
+    var ExittingApp = false;
     
 
     function initialize() {
@@ -372,13 +374,17 @@ class PomodoroTimerView extends WatchUi.View {
             dc.drawText(centerX, centerY - (width / 3).toNumber(), customFont4, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
 
             // Draw Format setting
-            dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_TRANSPARENT, Graphics.COLOR_DK_GRAY);
+            dc.fillRectangle(35, 94, 190, 40);
+            dc.setColor(ChangeSetting == 2 ?  Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(centerX, centerY - (width / 10).toNumber(), customFont5255S, "Format: " + HRS, Graphics.TEXT_JUSTIFY_CENTER);
 
             // Draw Pomodoro count
-            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_TRANSPARENT, Graphics.COLOR_DK_GRAY);
+            dc.fillRectangle(33, 140, 200, 54);
+            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(centerX, centerY + (width / 15).toNumber(), customFont5255S, "Total Pomodoros", Graphics.TEXT_JUSTIFY_CENTER);
-            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(centerX, centerY + (width / 6).toNumber(), customFont5255S, "Today: " + PomodoroCount, Graphics.TEXT_JUSTIFY_CENTER);
 
 
@@ -386,6 +392,24 @@ class PomodoroTimerView extends WatchUi.View {
             _lastDrawnHRS = HRS;
             _lastPomodoroCount = PomodoroCount;
             _lastChangeSetting = ChangeSetting;
+
+        } else if (ExitApp) {
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+            dc.fillRectangle(0, 0, width, height);
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.drawText(centerX, centerY - (width / 4).toNumber(), customFont5255S, "Do you want to Exit", Graphics.TEXT_JUSTIFY_CENTER);
+
+            // Draw Format setting
+            dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_TRANSPARENT, Graphics.COLOR_DK_GRAY);
+            dc.fillRectangle(97, 102, 65, 40);
+            dc.setColor(ChangeSetting == 2 ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(centerX, centerY - (width / 12).toNumber(), customFont4, "Yes", Graphics.TEXT_JUSTIFY_CENTER);
+
+            // Draw Pomodoro count
+            dc.setColor(ChangeSetting == 1 ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_TRANSPARENT, Graphics.COLOR_DK_GRAY);
+            dc.fillRectangle(97, 150, 65, 40);
+            dc.setColor(ChangeSetting == 1 ?  Graphics.COLOR_WHITE: Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(centerX, centerY + (width / 10).toNumber(), customFont4, "No", Graphics.TEXT_JUSTIFY_CENTER);
 
         } else {
             _settingsInitialized = false;
